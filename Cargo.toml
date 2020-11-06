@@ -1,5 +1,5 @@
 [package]
-name = "fs-checker-xxhash"
+name = "fast-file-tracker"
 version = "0.1.0"
 authors = ["Ben Edridge <BenEdridge@users.noreply.github.com>"]
 edition = "2018"
@@ -12,7 +12,6 @@ rayon = "1.1"
 redis = "0.17.0"
 walkdir = "2"
 jwalk = "0.5"
-memmap = "0.7.0"
 
 [profile.release]
 debug = false
