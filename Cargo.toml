@@ -8,10 +8,16 @@ edition = "2018"
 
 [dependencies]
 twox-hash = "1.6.0"
-rayon = "1.1"
+rayon = "1.5.0"
 redis = "0.17.0"
 walkdir = "2"
 jwalk = "0.5"
+
+# Required for SQLite database
+sqlx = { version = "0.4.1", default-features = false, features = [ "sqlite", "runtime-tokio-native-tls", "macros"] }
+tokio = { version = "0.2", features = ["full"] }
+uuid = { version = "0.8.1", features = ["v4"] }
+rusqlite = { version = "0.24", features = ["backup"] }
 
 [profile.release]
 debug = false
