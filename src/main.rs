@@ -1,5 +1,7 @@
 #![feature(async_closure)]
 
+use jwalk::WalkDirGeneric;
+use rusqlite::{params, Connection as ConnectionRusqlite, DatabaseName};
 use std::env;
 use std::fs;
 use std::fs::File;
@@ -7,20 +9,10 @@ use std::hash::Hasher;
 use std::io::{BufRead, BufReader};
 use std::os::unix::fs::FileTypeExt;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
-
-use twox_hash::XxHash64;
-
-use jwalk::WalkDirGeneric;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-use rusqlite::{backup, params, Connection as ConnectionRusqlite, DatabaseName};
-use sqlx::sqlite::{SqliteConnection, SqliteDone, SqlitePool};
-use sqlx::Connection;
-use uuid::Uuid;
 use std::sync::{Arc, Mutex};
-use std::{future::Future, pin::Pin};
 use std::time::Duration;
+use std::time::Instant;
+use twox_hash::XxHash64;
 
 #[derive(sqlx::FromRow, Debug)]
 struct Entry {
@@ -46,7 +38,8 @@ async fn main() -> Result<(), sqlx::Error> {
     let dirname = &args[1];
 
     let mut path_vec: Vec<PathBuf> = Vec::with_capacity(1_500_000);
-    let mut sqlite_queries: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::with_capacity(1_500_000)));
+    let sqlite_queries: Arc<Mutex<Vec<String>>> =
+        Arc::new(Mutex::new(Vec::with_capacity(1_500_000)));
     let conn_backup = ConnectionRusqlite::open_in_memory().unwrap();
 
     conn_backup
@@ -85,30 +78,30 @@ async fn main() -> Result<(), sqlx::Error> {
         .into_iter()
         .filter_map(|e| e.ok())
     {
-                let path = entry.path();
-                let metadata = fs::metadata(&path);
+        let path = entry.path();
+        let metadata = fs::metadata(&path);
 
-                let _metadata = match metadata {
-                    Ok(metadata) => {
-                        let size = metadata.len();
-                        let file_type = metadata.file_type();
+        let _metadata = match metadata {
+            Ok(metadata) => {
+                let size = metadata.len();
+                let file_type = metadata.file_type();
 
-                        if file_type.is_dir() || size == 0 {
-                            skip_count = skip_count + 1;
-                        } else {
-                            path_vec.push(path);
+                if file_type.is_dir() || size == 0 {
+                    skip_count = skip_count + 1;
+                } else {
+                    path_vec.push(path);
 
-                            // let path = path;
-                            // hash_file_and_save(&path, &sqlite_queries);
+                    // let path = path;
+                    // hash_file_and_save(&path, &sqlite_queries);
 
-                            file_count = file_count + 1;
-                            total_size = total_size + size as u128;
-                        }
-                    }
-                    Err(e) => {
-                        println!("Failure to Read MetaData Error: {:?} path: {:?}", e, path);
-                    }
-                };
+                    file_count = file_count + 1;
+                    total_size = total_size + size as u128;
+                }
+            }
+            Err(e) => {
+                println!("Failure to Read MetaData Error: {:?} path: {:?}", e, path);
+            }
+        };
     }
 
     let finished_dir_walk = finished_dir_walk.elapsed();
@@ -116,7 +109,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let finished_file_hash = Instant::now();
 
-    path_vec.iter().for_each( |path| {
+    path_vec.iter().for_each(|path| {
         hash_file_and_save(path, &sqlite_queries);
     });
 
