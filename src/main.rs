@@ -14,6 +14,9 @@ use std::time::Duration;
 use std::time::Instant;
 use twox_hash::XxHash64;
 
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
+
 #[derive(sqlx::FromRow, Debug)]
 struct Entry {
     row_id: i64,
@@ -109,7 +112,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let finished_file_hash = Instant::now();
 
-    path_vec.iter().for_each(|path| {
+    path_vec.par_iter().for_each(|path| {
         hash_file_and_save(path, &sqlite_queries);
     });
 
