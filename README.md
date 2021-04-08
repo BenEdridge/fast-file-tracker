@@ -11,35 +11,45 @@ An extremely fast file tracker and validator using xxhash
 
 ## Getting Started
 
-Tested on Macbook Pro 2015
-- 2.2 Ghz Core i7
-- 16GB RAM
-- APPLE SSD SM0256G
+Tested on Ubuntu 20.10 Desktop PC:
+- AMD Ryzen 5 3600 @3.4Ghz
+- 64GB RAM
+- Samsung 970 EVO NVMe (500GB)
 
-### Cold
-
-```
-$ cargo run ~/Desktop
-...
-    108e477e "/Users/admin/Desktop/73151555826473.txt"
-    99519270 "/Users/admin/Desktop/73321555826536.txt"
-    5304d46 "/Users/admin/Desktop/73491555826643.txt"
-Hashed 1089 Mb @ 691 Mb/s (5137 files in 994 directories) in 1.44s
-```
-
-### Hot (Cached Data) 
+`sudo fast-file-tracker ~/`
 
 ```
-$ cargo run ~/Desktop
-...
-    108e477e "/Users/admin/Desktop/73151555826473.txt"
-    99519270 "/Users/admin/Desktop/73321555826536.txt"
-    5304d46 "/Users/admin/Desktop/73491555826643.txt"
-Hashed 1089 Mb @ 3448.41 Mb/s (5137 files in 994 directories) in 315.80ms
+Read and Saved all Paths in: 2.779707316s
+Hashed and Prepared all Database Inserts in: 1.347903273s
+Inserted all entries into in-memory DB in: 3.789592278s
+Saved DB to file in: 556.772962ms
+Hashed 23114 Mb @ 2727.56 Mb/s (1205579 files in 200697 directories) in 8.47s
+
+Statistics:
+----------------------------------------
+Directory Traversal       | 2.779707316s
+Hashing                   | 1.347903273s
+Database Insert (memory)  | 3.789592278s
+Database Copy (Disk)      | 556.772962ms
+----------------------------------------
+Total Time                | 8.474256153s
 ```
 
-### Cold (Large External SSD via USB3)
+`sudo fast-file-tracker /var/log/`
 
 ```
-Hashed 489486 Mb @ 385.90 Mb/s (461450 files in 105056 directories) in 1268.42s
+Read and Saved all Paths in: 6.697776ms
+Hashed and Prepared all Database Inserts in: 1.348348521s
+Inserted all entries into in-memory DB in: 2.190764ms
+Saved DB to file in: 46.07565ms
+Hashed 4612 Mb @ 3285.87 Mb/s (692 files in 33 directories) in 1.40s
+
+Statistics:
+----------------------------------------
+Directory Traversal       | 6.697776ms
+Hashing                   | 1.348348521s
+Database Insert (memory)  | 2.190764ms
+Database Copy (Disk)      | 46.07565ms
+----------------------------------------
+Total Time                | 1.40358399s
 ```
